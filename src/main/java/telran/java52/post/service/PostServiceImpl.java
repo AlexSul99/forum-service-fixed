@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -101,20 +103,16 @@ public class PostServiceImpl implements PostService {
 	     LocalDate startDate = datePeriodDto.getDateFrom();
 	     LocalDate endDate = datePeriodDto.getDateTo();
 	     Iterable<Post> posts = postRepository.findByDateCreatedBetween(startDate, endDate);
-	     List<PostDto> postDtos = new ArrayList<>();
-	     for (Post post : posts) {
-	         postDtos.add(modelMapper.map(post, PostDto.class));
-	     }
-	     return postDtos;
+	     return StreamSupport.stream(posts.spliterator(), false)
+	                         .map(post -> modelMapper.map(post, PostDto.class))
+	                         .collect(Collectors.toList());
 	 }
 	
 	
-	public Iterable<PostDto> mapPostsToDto(Iterable<Post> posts) {
-        List<PostDto> postDtos = new ArrayList<>();
-        for (Post post : posts) {
-            postDtos.add(modelMapper.map(post, PostDto.class));
-        }
-        return postDtos;
-    }
+	 public Iterable<PostDto> mapPostsToDto(Iterable<Post> posts) {
+		    return StreamSupport.stream(posts.spliterator(), false)
+		                        .map(post -> modelMapper.map(post, PostDto.class))
+		                        .collect(Collectors.toList());
+		}
 
 }
